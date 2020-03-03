@@ -4,6 +4,7 @@ import fs from "fs";
 import bodyParser from "body-parser";
 import { env } from "process";
 import onDeath from "death";
+import morgan from "morgan";
 
 interface Message {
   sender: string;
@@ -26,22 +27,34 @@ const ircClient = new Client(ircServer, ircNick, {
   channels: [flixChannel]
 });
 
-app.use(bodyParser());
+app.use(bodyParser.json(), morgan("tiny"), function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  next();
+});
 
 app.get("/", (req: express.Request, res: express.Response) => {
   const limit = parseInt(req.query.limit);
-  const reverseMessages = [...messages].reverse();
-  res.json(limit ? reverseMessages.slice(0, limit) : reverseMessages);
+  const limitedMessages = [...messages]
+    .reverse()
+    .slice(0, limit)
+    .reverse();
+  res.json(limit ? limitedMessages : messages);
 });
 
 app.post("/", (req: express.Request, res: express.Response) => {
+  console.log(req.body);
   const message: string = req.body.message;
   messages.push({ sender: ircNick, text: message });
   ircClient.say(flixChannel, message);
   res.json("ok");
 });
 
-onDeath(() => fs.writeFileSync("history.json", JSON.stringify(messages)));
+onDeath(() => {
+  fs.writeFileSync("history.json", JSON.stringify(messages));
+  process.exit();
+});
 
 app.listen(port, () => {
   ircClient.addListener(
