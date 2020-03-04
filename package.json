@@ -2,12 +2,16 @@
   "name": "bruellwuerfel",
   "version": "0.1.0",
   "description": "Shoutbox REST to IRC bridge",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js"
   },
   "author": "Kierán Meinhardt <kieran.meinhardt@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/krebs/bruellwuerfel"
+  },
   "license": "MIT",
   "dependencies": {
     "body-parser": "^1.19.0",
