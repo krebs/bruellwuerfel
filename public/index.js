@@ -1,10 +1,15 @@
 function renderHistory(messages) {
   return messages
-    .map(message => `<dt>${message.sender}</dt><dd>${message.text}</dd>`)
+    .map(function(message) {
+      return `<dt>${message.sender}</dt><dd>${message.text}</dd>`;
+    })
     .join("\n");
 }
 
 function renderShoutbox(div) {
+  const dl = document.createElement("dl");
+  dl.id = "irc-history";
+
   const input = document.createElement("input");
   input.id = "message-input";
 
@@ -12,14 +17,15 @@ function renderShoutbox(div) {
   submit.id = "message-send";
   submit.innerHTML = "Send";
 
+  // click on enter
   input.addEventListener("keyup", function(event) {
     if (event.keyCode === 13) {
-      // if enter
       event.preventDefault();
       document.getElementById("message-send").click();
     }
   });
 
+  // send on click
   submit.onclick = function() {
     const messageText = input.value;
 
@@ -31,9 +37,6 @@ function renderShoutbox(div) {
     };
     xhr.send(JSON.stringify({ message: messageText }));
   };
-
-  const dl = document.createElement("dl");
-  dl.id = "irc-history";
 
   div.appendChild(dl);
   div.appendChild(input);
