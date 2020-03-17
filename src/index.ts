@@ -2,6 +2,7 @@ import { Request, Response, default as express } from "express";
 import bodyParser from "body-parser";
 import onDeath from "death";
 import morgan from "morgan";
+import { createHash } from "crypto";
 
 import * as persistence from "./persistence";
 import * as irc from "./irc";
@@ -30,9 +31,17 @@ app.get("/", (req: Request, res: Response) => {
 app.post("/", (req: Request, res: Response) => {
   console.log(req.body);
 
+  const hash = createHash("md5");
+
+  hash.update(req.headers["user-agent"] || "");
+  hash.update(req.headers["accept-language"] || "");
+  hash.update((req.headers["accept-encoding"] || []).toString());
+
+  const userName = hash.digest("hex").slice(0, 3);
+
   const message: string = req.body.message;
-  messages.push({ sender: irc.nick, text: message });
-  irc.send(message);
+  messages.push({ sender: userName, text: message });
+  irc.send(userName, message);
   res.send();
 });
 
