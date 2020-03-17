@@ -4,13 +4,16 @@ import bodyParser from "body-parser";
 import onDeath from "death";
 import morgan from "morgan";
 import { createHash } from "crypto";
+import { env } from "process";
 
 import * as persistence from "./persistence";
 import * as irc from "./irc";
 import { Message } from "./types";
 
 const app = express();
-const port = 3000;
+
+const rawPort = parseInt(env.REST_PORT || "");
+const port = isNaN(rawPort) ? 3000 : rawPort;
 
 let messages: Array<Message> = [];
 try {
