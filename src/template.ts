@@ -1,6 +1,7 @@
+export default `
 const renderHistory = messages =>
   messages
-    .map(message => `<dt>${message.sender}</dt><dd>${message.text}</dd>`)
+    .map(message => "<dt>" + message.sender + "</dt><dd>" + message.text + "</dd>")
     .join("\n");
 
 const renderShoutbox = div => {
@@ -58,3 +59,4 @@ const renderShoutbox = div => {
 
   setTimeout(refresher, 500);
 })();
+`;

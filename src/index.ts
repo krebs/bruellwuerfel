@@ -5,8 +5,9 @@ import onDeath from "death";
 import morgan from "morgan";
 import { createHash } from "crypto";
 import { env } from "process";
-import { renderFile } from "ejs";
+import { render } from "ejs";
 
+import javascriptTemplate from "./template";
 import * as persistence from "./persistence";
 import * as irc from "./irc";
 import { Message } from "./types";
@@ -45,15 +46,9 @@ app.get("/", (req: Request, res: Response) => {
 app.get("/index.js", (req: Request, res: Response) => {
   const host = req.get("host");
 
-  renderFile(
-    "./views/javascript.ejs",
-    { host },
-    {},
-    (err, javascript: string) => {
-      if (err) console.error(err);
-      else res.send(javascript);
-    }
-  );
+  const javascript = render(javascriptTemplate, { host }, {});
+
+  res.send(javascript);
 });
 
 app.post("/", (req: Request, res: Response) => {

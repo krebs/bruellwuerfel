@@ -7,7 +7,7 @@ in yarn2nix-moretea.mkYarnModules rec {
   packageJSON = "${src}/package.json";
   yarnLock = "${src}/yarn.lock";
   postBuild = ''
-    cp -r ${src}/{views,src,tsconfig.json} $out/
+    cp -r ${src}/{src,tsconfig.json} $out/
     cd $out
     ${nodePackages.typescript}/bin/tsc || :
     mkdir -p $out/bin
