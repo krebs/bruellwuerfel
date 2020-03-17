@@ -5,6 +5,7 @@ import onDeath from "death";
 import morgan from "morgan";
 import { createHash } from "crypto";
 import { env } from "process";
+import { renderFile } from "ejs";
 
 import * as persistence from "./persistence";
 import * as irc from "./irc";
@@ -39,6 +40,20 @@ app.use(bodyParser.json(), morgan("tiny"), (req, res, next) => {
 app.get("/", (req: Request, res: Response) => {
   const limit = parseInt(req.query.limit);
   res.json(limit ? messages.slice(messages.length - limit) : messages);
+});
+
+app.get("/index.js", (req: Request, res: Response) => {
+  const host = req.get("host");
+
+  renderFile(
+    "./src/views/javascript.ejs",
+    { host },
+    {},
+    (err, javascript: string) => {
+      if (err) console.error(err);
+      else res.send(javascript);
+    }
+  );
 });
 
 app.post("/", (req: Request, res: Response) => {
