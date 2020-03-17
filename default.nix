@@ -11,7 +11,8 @@ in yarn2nix-moretea.mkYarnModules rec {
     cd $out
     ${nodePackages.typescript}/bin/tsc || :
     mkdir -p $out/bin
-    echo "export NODE_PATH=$out/dist" > $out/bin/bruellwuerfel
+    echo '#!/bin/sh' > $out/bin/bruellwuerfel
+    echo "export NODE_PATH=$out/dist" >> $out/bin/bruellwuerfel
     echo "${nodejs}/bin/node $out/dist/index.js" >> $out/bin/bruellwuerfel
     chmod +x $out/bin/bruellwuerfel
   '';
