@@ -8,7 +8,6 @@ in yarn2nix-moretea.mkYarnModules rec {
   yarnLock = "${src}/yarn.lock";
   postBuild = ''
     cp -r ${src}/{src,tsconfig.json} $out/
-    chmod +w $out/src
     cd $out
     ${nodePackages.typescript}/bin/tsc || :
     mkdir -p $out/bin
