@@ -60,9 +60,7 @@ app.get("/index.html", (req: Request, res: Response) => {
 });
 
 app.get("/index.js", (req: Request, res: Response) => {
-  const host = req.get("host");
-  const javascript = render(javascriptTemplate, { host }, {});
-  res.send(javascript);
+  res.send(javascriptTemplate);
 });
 
 onDeath(() => {
