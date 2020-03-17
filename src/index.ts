@@ -7,7 +7,8 @@ import { createHash } from "crypto";
 import { env } from "process";
 import { render } from "ejs";
 
-import javascriptTemplate from "./template";
+import javascriptTemplate from "./templates/javascript";
+import htmlTemplate from "./templates/html";
 import * as persistence from "./persistence";
 import * as irc from "./irc";
 import { Message } from "./types";
@@ -38,20 +39,12 @@ app.use(bodyParser.json(), morgan("tiny"), (req, res, next) => {
   next();
 });
 
-app.get("/", (req: Request, res: Response) => {
+app.get("/messages", (req: Request, res: Response) => {
   const limit = parseInt(req.query.limit);
   res.json(limit ? messages.slice(messages.length - limit) : messages);
 });
 
-app.get("/index.js", (req: Request, res: Response) => {
-  const host = req.get("host");
-
-  const javascript = render(javascriptTemplate, { host }, {});
-
-  res.send(javascript);
-});
-
-app.post("/", (req: Request, res: Response) => {
+app.post("/messages", (req: Request, res: Response) => {
   console.log(req.body);
 
   const userName = generateUsername(req.headers);
@@ -60,6 +53,16 @@ app.post("/", (req: Request, res: Response) => {
   messages.push({ sender: userName, text: message });
   irc.send(userName, message);
   res.send();
+});
+
+app.get("/index.html", (req: Request, res: Response) => {
+  res.send(htmlTemplate);
+});
+
+app.get("/index.js", (req: Request, res: Response) => {
+  const host = req.get("host");
+  const javascript = render(javascriptTemplate, { host }, {});
+  res.send(javascript);
 });
 
 onDeath(() => {

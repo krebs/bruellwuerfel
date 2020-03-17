@@ -2,7 +2,7 @@ export default `
 const renderHistory = messages =>
   messages
     .map(message => "<dt>" + message.sender + "</dt><dd>" + message.text + "</dd>")
-    .join("\n");
+    .join("\\n");
 
 const renderShoutbox = div => {
   const dl = document.createElement("dl");
@@ -28,7 +28,7 @@ const renderShoutbox = div => {
     const messageText = input.value;
 
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", "http://<%= host %>", true);
+    xhr.open("POST", "http://<%= host %>/messages", true);
     xhr.setRequestHeader("Content-type", "application/json");
     xhr.onload = () => (input.value = "");
     xhr.send(JSON.stringify({ message: messageText }));
@@ -41,7 +41,7 @@ const renderShoutbox = div => {
 
 (function refresher() {
   const xhr = new XMLHttpRequest();
-  xhr.open("GET", "http://<%= host %>?limit=10", true);
+  xhr.open("GET", "http://<%= host %>/messages?limit=10", true);
   xhr.onload = e => {
     if (xhr.readyState === 4) {
       if (xhr.status === 200) {
