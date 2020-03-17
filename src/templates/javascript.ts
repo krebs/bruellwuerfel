@@ -30,7 +30,10 @@ const renderShoutbox = div => {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "messages", true);
     xhr.setRequestHeader("Content-type", "application/json");
-    xhr.onload = () => (input.value = "");
+    xhr.onload = () => {
+      input.value = "";
+      window.scrollTo(0, document.body.scrollHeight);
+    };
     xhr.send(JSON.stringify({ message: messageText }));
   };
 
