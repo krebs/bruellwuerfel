@@ -46,7 +46,7 @@ app.get("/index.js", (req: Request, res: Response) => {
   const host = req.get("host");
 
   renderFile(
-    "./src/views/javascript.ejs",
+    "./views/javascript.ejs",
     { host },
     {},
     (err, javascript: string) => {
