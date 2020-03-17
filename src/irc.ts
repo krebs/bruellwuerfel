@@ -1,9 +1,9 @@
 import { Client } from "irc";
 import { env } from "process";
 
-const channel = "#flix";
+const channel = env.IRC_CHANNEL || "#flix";
 const server = env.IRC_SERVER || "irc.r";
-export const nick = "bruellwuerfel";
+export const nick = env.IRC_NICK || "bruellwuerfel";
 
 const ircClient = new Client(server, nick, {
   channels: [channel]
