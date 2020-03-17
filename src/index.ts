@@ -1,4 +1,5 @@
 import { Request, Response, default as express } from "express";
+import { IncomingHttpHeaders } from "http2";
 import bodyParser from "body-parser";
 import onDeath from "death";
 import morgan from "morgan";
@@ -16,6 +17,15 @@ try {
   messages = persistence.load();
 } catch (error) {}
 
+function generateUsername(headers: IncomingHttpHeaders): string {
+  const hash = createHash("md5");
+  hash.update(headers["user-agent"] || "");
+  hash.update(headers["accept-language"] || "");
+  hash.update((headers["accept-encoding"] || []).toString());
+
+  return hash.digest("base64").slice(0, 3);
+}
+
 app.use(bodyParser.json(), morgan("tiny"), (req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "X-Requested-With");
@@ -31,15 +41,9 @@ app.get("/", (req: Request, res: Response) => {
 app.post("/", (req: Request, res: Response) => {
   console.log(req.body);
 
-  const hash = createHash("md5");
-
-  hash.update(req.headers["user-agent"] || "");
-  hash.update(req.headers["accept-language"] || "");
-  hash.update((req.headers["accept-encoding"] || []).toString());
-
-  const userName = hash.digest("hex").slice(0, 3);
-
+  const userName = generateUsername(req.headers);
   const message: string = req.body.message;
+
   messages.push({ sender: userName, text: message });
   irc.send(userName, message);
   res.send();
