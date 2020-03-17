@@ -4,11 +4,9 @@ import { env } from "process";
 const channel = env.IRC_CHANNEL || "#flix";
 const server = env.IRC_SERVER || "irc.r";
 export const nick = env.IRC_NICK || "bruellwuerfel";
-let port = 6667;
 
-try {
-  port = parseInt(env.IRC_PORT || "");
-} catch (error) {}
+const rawPort = parseInt(env.IRC_PORT || "");
+const port = isNaN(rawPort) ? 6667 : rawPort;
 
 const ircClient = new Client(server, nick, {
   channels: [channel],
@@ -16,7 +14,6 @@ const ircClient = new Client(server, nick, {
   userName: "bruellwuerfel",
   realName: "bruellwuerfel shoutbox gateway"
 });
-
 export const send = (userName: string, message: string) =>
   ircClient.say(channel, `<${userName}> ${message}`);
 
