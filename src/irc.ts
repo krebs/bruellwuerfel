@@ -12,7 +12,9 @@ try {
 
 const ircClient = new Client(server, nick, {
   channels: [channel],
-  port: port
+  port: port,
+  userName: "bruellwuerfel",
+  realName: "bruellwuerfel shoutbox gateway"
 });
 
 export const send = (userName: string, message: string) =>
