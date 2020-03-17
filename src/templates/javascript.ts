@@ -28,7 +28,7 @@ const renderShoutbox = div => {
     const messageText = input.value;
 
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", "/messages", true);
+    xhr.open("POST", "messages", true);
     xhr.setRequestHeader("Content-type", "application/json");
     xhr.onload = () => (input.value = "");
     xhr.send(JSON.stringify({ message: messageText }));
@@ -41,7 +41,7 @@ const renderShoutbox = div => {
 
 (function refresher() {
   const xhr = new XMLHttpRequest();
-  xhr.open("GET", "/messages?limit=10", true);
+  xhr.open("GET", "messages?limit=10", true);
   xhr.onload = e => {
     if (xhr.readyState === 4) {
       if (xhr.status === 200) {
