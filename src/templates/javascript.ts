@@ -52,6 +52,7 @@ const renderShoutbox = div => {
         document.getElementById("irc-history").innerHTML = renderHistory(
           messages
         );
+        window.scrollTo(0, document.body.scrollHeight);
       } else {
         console.error(xhr.statusText);
       }
