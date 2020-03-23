@@ -42,17 +42,20 @@ const renderShoutbox = div => {
   div.appendChild(submit);
 };
 
-(function refresher() {
+(function refresher(oldMessages) {
   const xhr = new XMLHttpRequest();
+  let messages = [];
   xhr.open("GET", "messages?limit=10", true);
   xhr.onload = e => {
     if (xhr.readyState === 4) {
       if (xhr.status === 200) {
-        const messages = JSON.parse(xhr.responseText);
+        messages = JSON.parse(xhr.responseText);
         document.getElementById("irc-history").innerHTML = renderHistory(
           messages
         );
-        window.scrollTo(0, document.body.scrollHeight);
+        if (JSON.stringify(oldMessages) !== JSON.stringify(messages)) {
+          window.scrollTo(0, document.body.scrollHeight);
+        }
       } else {
         console.error(xhr.statusText);
       }
@@ -61,6 +64,6 @@ const renderShoutbox = div => {
   xhr.onerror = e => console.error(xhr.statusText);
   xhr.send(null);
 
-  setTimeout(refresher, 500);
+  setTimeout(refresher(messages), 500);
 })();
 `;
