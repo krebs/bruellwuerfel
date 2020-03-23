@@ -64,6 +64,6 @@ const renderShoutbox = div => {
   xhr.onerror = e => console.error(xhr.statusText);
   xhr.send(null);
 
-  setTimeout(refresher(messages), 500);
+  setTimeout(() => refresher(messages), 500);
 })();
 `;
