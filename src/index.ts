@@ -1,27 +1,14 @@
-import { Request, Response, default as express } from "express";
-import { IncomingHttpHeaders } from "http2";
-import bodyParser from "body-parser";
-import onDeath from "death";
-import morgan from "morgan";
-import { createHash } from "crypto";
-import { env } from "process";
-import { render } from "ejs";
+import { createHash } from "https://deno.land/std@0.110.0/hash/mod.ts";
+import { signal } from "https://deno.land/std@0.170.0/signal/mod.ts";
+import * as dejs from "https://deno.land/x/dejs@0.10.3/mod.ts";
+import { Application, Router, helpers } from "https://deno.land/x/oak/mod.ts";
+import ON_DEATH from "npm:death@1.1.0";
 
-import javascriptTemplate from "./templates/javascript";
-import htmlTemplate from "./templates/html";
-import * as persistence from "./persistence";
-import * as irc from "./irc";
-import { Message } from "./types";
-
-const app = express();
-
-const rawPort = parseInt(env.REST_PORT || "");
-const port = isNaN(rawPort) ? 3000 : rawPort;
-
-let messages: Array<Message> = [];
-try {
-  messages = persistence.load();
-} catch (error) {}
+import htmlTemplate from "./templates/html.ts";
+import javascriptTemplate from "./templates/javascript.ts";
+import * as persistence from "./persistence.ts";
+import * as irc from "./irc.ts";
+import { Message } from "./types.ts";
 
 function generateUsername(headers: IncomingHttpHeaders): string {
   const hash = createHash("md5");
@@ -29,46 +16,51 @@ function generateUsername(headers: IncomingHttpHeaders): string {
   hash.update(headers["accept-language"] || "");
   hash.update((headers["accept-encoding"] || []).toString());
 
-  return hash.digest("base64").slice(0, 3);
+  return hash.toString("base64").slice(0, 3);
 }
 
-app.use(bodyParser.json(), morgan("tiny"), (req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "X-Requested-With");
-  res.header("Access-Control-Allow-Headers", "Content-Type");
-  next();
-});
+let messages: Array<Message> = [];
+try {
+  messages = persistence.load();
+} catch (error) {}
 
-app.get("/messages", (req: Request, res: Response) => {
-  const limit = parseInt(req.query.limit);
-  res.json(limit ? messages.slice(messages.length - limit) : messages);
-});
+const router = new Router();
 
-app.post("/messages", (req: Request, res: Response) => {
-  console.log(req.body);
+router
+  .get("/messages", (context) => {
+    const { limit } = helpers.getQuery(context, { mergeParams: true });
+    context.response.body = limit
+      ? messages.slice(messages.length - limit)
+      : messages;
+  })
+  .post("/messages", async (context) => {
+    const requestBody = await context.request.body("json").value;
+    const { message } = requestBody;
 
-  const userName = generateUsername(req.headers);
-  const message: string = req.body.message;
+    const userName = generateUsername(context.request.headers);
+    messages.push({ sender: userName, text: message });
+    irc.send(userName, message);
+    context.response.body = "";
+  })
+  .get("/index.html", (context) => {
+    context.response.body = htmlTemplate;
+  })
+  .get("/index.js", (context) => {
+    context.response.body = javascriptTemplate;
+  });
 
-  messages.push({ sender: userName, text: message });
-  irc.send(userName, message);
-  res.send();
-});
-
-app.get("/index.html", (req: Request, res: Response) => {
-  res.send(htmlTemplate);
-});
-
-app.get("/index.js", (req: Request, res: Response) => {
-  res.send(javascriptTemplate);
-});
-
-onDeath(() => {
+ON_DEATH(() => {
   persistence.save(messages);
-  process.exit();
+  Deno.exit(0);
 });
 
-app.listen(port, () => {
-  irc.onMessage((sender, text) => messages.push({ sender, text }));
-  console.log(`REST listening on port ${port}.`);
-});
+const app = new Application();
+app.use(router.routes());
+app.use(router.allowedMethods());
+
+const rawPort = parseInt(Deno.env.get("REST_PORT") || "");
+const port = isNaN(rawPort) ? 3000 : rawPort;
+
+irc.onMessage((sender, text) => messages.push({ sender, text }));
+console.log(`REST listening on ${port}`);
+await app.listen({ port });
