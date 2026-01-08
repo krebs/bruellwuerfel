@@ -1,7 +1,4 @@
-import { createHash } from "https://deno.land/std@0.110.0/hash/mod.ts";
-import { signal } from "https://deno.land/std@0.170.0/signal/mod.ts";
-import * as dejs from "https://deno.land/x/dejs@0.10.3/mod.ts";
-import { Application, Router, helpers } from "https://deno.land/x/oak/mod.ts";
+import { Application, Router } from "https://deno.land/x/oak@v17.1.4/mod.ts";
 import ON_DEATH from "npm:death@1.1.0";
 
 import htmlTemplate from "./templates/html.ts";
@@ -10,34 +7,39 @@ import * as persistence from "./persistence.ts";
 import * as irc from "./irc.ts";
 import { Message } from "./types.ts";
 
-function generateUsername(headers: IncomingHttpHeaders): string {
-  const hash = createHash("md5");
-  hash.update(headers["user-agent"] || "");
-  hash.update(headers["accept-language"] || "");
-  hash.update((headers["accept-encoding"] || []).toString());
+async function generateUsername(headers: Headers): Promise<string> {
+  const data = [
+    headers.get("user-agent") || "",
+    headers.get("accept-language") || "",
+    headers.get("accept-encoding") || "",
+  ].join("");
 
-  return hash.toString("base64").slice(0, 3);
+  const encoder = new TextEncoder();
+  const hashBuffer = await crypto.subtle.digest("SHA-256", encoder.encode(data));
+  const hashArray = new Uint8Array(hashBuffer);
+  const base64 = btoa(String.fromCharCode(...hashArray));
+  return base64.slice(0, 3);
 }
 
 let messages: Array<Message> = [];
 try {
   messages = persistence.load();
-} catch (error) {}
+} catch (_error) { /* ignore missing history file */ }
 
 const router = new Router();
 
 router
   .get("/messages", (context) => {
-    const { limit } = helpers.getQuery(context, { mergeParams: true });
+    const limit = context.request.url.searchParams.get("limit");
     context.response.body = limit
-      ? messages.slice(messages.length - limit)
+      ? messages.slice(messages.length - parseInt(limit))
       : messages;
   })
   .post("/messages", async (context) => {
-    const requestBody = await context.request.body("json").value;
+    const requestBody = await context.request.body.json();
     const { message } = requestBody;
 
-    const userName = generateUsername(context.request.headers);
+    const userName = await generateUsername(context.request.headers);
     messages.push({ sender: userName, text: message });
     irc.send(userName, message);
     context.response.body = "";
