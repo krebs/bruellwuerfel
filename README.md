@@ -209,36 +209,15 @@ The system generates anonymous user IDs by hashing:
 
 This creates consistent identifiers across sessions without requiring login.
 
-## 🤝 Contributing
+## 🐛 Known Issues & Future Enhancements
 
-Contributions are welcome! Here's how you can help:
-
-1. **Fork the repository**
-2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-3. **Commit your changes**: `git commit -m 'Add amazing feature'`
-4. **Push to the branch**: `git push origin feature/amazing-feature`
-5. **Open a Pull Request**
-
-### Guidelines
-
-- Follow existing code style and conventions
-- Write clear commit messages
-- Test your changes thoroughly
-- Update documentation as needed
-
-## 📝 License
-
-This project is open source. Please check the repository for license details.
-
-## 🐛 Known Issues & Limitations
-
+**Current Limitations:**
 - Message history grows unbounded (consider implementing rotation/limits)
 - No authentication or rate limiting on message posting
 - IRC connection errors are not gracefully handled in the UI
 - Anonymous user identification can be spoofed by changing headers
 
-## 🔮 Future Enhancements
-
+**Planned Improvements:**
 - [ ] Add WebSocket support for real-time updates (eliminate polling)
 - [ ] Implement message history pagination
 - [ ] Add rate limiting and spam protection
@@ -255,20 +234,3 @@ This project is open source. Please check the repository for license details.
 - **IRC Gateway**: Allow non-technical users to participate in IRC channels
 - **Event Chat**: Temporary chat solution for events or gatherings
 - **Retro Chat**: Nostalgic shoutbox experience with modern infrastructure
-
-## 🙏 Acknowledgments
-
-Built with:
-- [Deno](https://deno.land/) - Secure JavaScript/TypeScript runtime
-- [Oak](https://github.com/oakserver/oak) - Middleware framework for Deno
-- [irc](https://deno.land/x/irc) - IRC client library for Deno
-
-## 📞 Support
-
-For issues, questions, or suggestions:
-- Open an issue on [GitHub](https://github.com/krebs/bruellwuerfel/issues)
-- Check existing issues for solutions
-
----
-
-**Made with ❤️ for the IRC community**
