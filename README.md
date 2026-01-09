@@ -105,17 +105,7 @@ IRC_NICK=mybot \
 deno run --allow-net --allow-read --allow-write --allow-env src/index.ts
 ```
 
-### Using Docker (if you have a Dockerfile)
 
-If you prefer containerized deployment:
-
-```bash
-docker build -t bruellwuerfel .
-docker run -p 3000:3000 \
-  -e IRC_SERVER=irc.libera.chat \
-  -e IRC_CHANNEL=#your-channel \
-  bruellwuerfel
-```
 
 ## 🔌 API Reference
 
@@ -271,7 +261,7 @@ This project is open source. Please check the repository for license details.
 Built with:
 - [Deno](https://deno.land/) - Secure JavaScript/TypeScript runtime
 - [Oak](https://github.com/oakserver/oak) - Middleware framework for Deno
-- [deno-irc](https://deno.land/x/irc) - IRC client library for Deno
+- [irc](https://deno.land/x/irc) - IRC client library for Deno
 
 ## 📞 Support
 
